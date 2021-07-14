@@ -40,13 +40,13 @@ namespace WKC
         #endregion
 
         #region 分辨率
-        [MenuItem("Tools/分辨率/获取屏幕宽高比", false,21)]
+        [MenuItem("Tools/分辨率/获取屏幕宽高比", false, 21)]
         private static void GetResolution()
         {
             Debug.LogError(ResolutionDetection.GetAspectRatio());
         }
 
-        [MenuItem("Tools/分辨率/判断是否是Pad分辨率", false,22)]
+        [MenuItem("Tools/分辨率/判断是否是Pad分辨率", false, 22)]
         private static void GetIsPad()
         {
             Debug.LogError(ResolutionDetection.IsPad());
@@ -63,5 +63,20 @@ namespace WKC
             OpenFolder(Path.Combine(Application.dataPath, "../"));
         }
         #endregion
+
+        /// <summary>
+        /// 给脚本写入内容
+        /// </summary>
+        /// <param name="sw"></param>
+        /// <param name="className">类名</param>
+        /// <param name="baseClass">父类</param>
+        public static void WriteScript(StreamWriter sw, string className, string baseClass = "MonoBehaviour")
+        {
+            sw.WriteLine("using UnityEngine;");
+            sw.WriteLine();
+            sw.WriteLine("public class {0} : {1}", className, baseClass);
+            sw.WriteLine("{");
+            sw.WriteLine("}");
+        }
     }
 }
