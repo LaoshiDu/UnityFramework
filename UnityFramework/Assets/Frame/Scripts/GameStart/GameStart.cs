@@ -9,6 +9,7 @@ namespace WKC
         void Start()
         {
             DataStorage.Instance.LoadJsonsData();
+            UIManager.Instance.Init();
             StartCoroutine(SaveDataToLocal());
         }
 

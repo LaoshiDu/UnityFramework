@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace WKC
 {
-    public class WKCTools
+    public class MyTools
     {
         /// <summary>
         /// 根据概率获取结果

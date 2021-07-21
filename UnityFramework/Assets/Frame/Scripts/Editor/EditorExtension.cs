@@ -73,10 +73,11 @@ namespace WKC
         public static void WriteScript(StreamWriter sw, string className, string baseClass = "MonoBehaviour")
         {
             sw.WriteLine("using UnityEngine;");
+            sw.WriteLine("using WKC;");
             sw.WriteLine();
             sw.WriteLine("public class {0} : {1}", className, baseClass);
             sw.WriteLine("{");
-            sw.WriteLine("}");
+            sw.Write("}");
         }
     }
 }
