@@ -21,6 +21,8 @@ namespace WKC
         private PanelType panelType;
         private static string uiPrefabsPath = Application.dataPath + "/Resources/Prefabs/UIPanels";
 
+        private static bool isFirstLine = true;
+
         private void OnGUI()
         {
             GUILayout.BeginHorizontal();
@@ -137,7 +139,6 @@ namespace WKC
         
         private static void ModifyConfig(Dictionary<PanelType, List<GameObject>> panelDic)
         {
-            bool isFirstLine = true;
             string uiConfigPath = Application.dataPath + "/Resources/UIConfig";
             if (!Directory.Exists(uiConfigPath))
             {
@@ -148,7 +149,7 @@ namespace WKC
             sw.WriteLine("{");
             sw.WriteLine("\t"+"\""+"panels"+"\""+":");
             sw.WriteLine("\t[");
-            
+            isFirstLine = true;
             foreach (var item in panelDic)
             {
                 int index = 0;
@@ -156,23 +157,23 @@ namespace WKC
                 {
                     case PanelType.Base:
                         index = 1;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key, isFirstLine);
+                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.PopupWindow:
                         index = 101;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key, isFirstLine);
+                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Panel:
                         index = 201;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key, isFirstLine);
+                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Tip:
                         index = 301;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key, isFirstLine);
+                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Loading:
                         index = 401;
-                        WriteUIConfigItem(index,item.Value,sw,(int)item.Key,isFirstLine);
+                        WriteUIConfigItem(index,item.Value,sw,(int)item.Key);
                         continue;
                 }
             }
@@ -182,7 +183,7 @@ namespace WKC
             sw.Close();
         }
 
-        private static void WriteUIConfigItem(int index,List<GameObject> item, StreamWriter sw,int type,bool isFirstLine)
+        private static void WriteUIConfigItem(int index,List<GameObject> item, StreamWriter sw,int type)
         {
             for (int i = 0; i < item.Count; i++)
             {

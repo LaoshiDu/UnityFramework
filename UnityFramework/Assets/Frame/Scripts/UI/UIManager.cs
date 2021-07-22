@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LitJson;
 
 namespace WKC
 {
@@ -20,22 +21,22 @@ namespace WKC
         /// <summary>
         /// 存储面板的配置信息
         /// </summary>
-        private Dictionary<PanelName, PanelConfigInfo> configInfoDic;
+        private Dictionary<PanelName, PanelConfig> panelConfigDic;
 
         /// <summary>
         /// 存储所有加载进来的面板
         /// </summary>
-        private Dictionary<PanelName, BasePanel> loadedPanels;
+        private Dictionary<PanelName, BasePanel> loadedPanelDic;
 
         /// <summary>
         /// 可以同时存在并且可以同时操作的面板
         /// </summary>
-        private Dictionary<PanelName, BasePanel> panels;
+        private Dictionary<PanelName, BasePanel> panelDic;
 
         /// <summary>
         /// 弹窗面板
         /// </summary>
-        private Stack<BasePanel> popupWindowPanels;
+        private Stack<BasePanel> popUpStack;
 
         /// <summary>
         /// Loading界面单独存储
@@ -44,23 +45,31 @@ namespace WKC
 
         public void Init()
         {
-            configInfoDic = new Dictionary<PanelName, PanelConfigInfo>();
-            loadedPanels = new Dictionary<PanelName, BasePanel>();
-            panels = new Dictionary<PanelName, BasePanel>();
-            popupWindowPanels = new Stack<BasePanel>();
-            canvas = GameObject.Find("Canvas").transform;
+            panelConfigDic = new Dictionary<PanelName, PanelConfig>();
+            loadedPanelDic = new Dictionary<PanelName, BasePanel>();
+            panelDic = new Dictionary<PanelName, BasePanel>();
+            popUpStack = new Stack<BasePanel>();
+            canvas = GameObject.Find("Canvas")?.transform;
+
+            if (canvas == null)
+            {
+                GameObject canvasPrefab = Resources.Load<GameObject>("Prefabs/UI/Canvas");
+                canvas = GameObject.Instantiate<GameObject>(canvasPrefab).transform;
+                canvas.name = "Canvas";
+            }
+
             eventSystem = GameObject.Find("EventSystem");
 
             //读取面板配置文件
             TextAsset json = Resources.Load<TextAsset>("UIConfig/PanelConfig");
-            ConfigInfo info = JsonUtility.FromJson<ConfigInfo>(json.text);
-            for (int i = 0; i < info.panels.Count; i++)
+            
+            PanelConfigList list = JsonMapper.ToObject<PanelConfigList>(json.text);
+            for (int i = 0; i < list.panels.Count; i++)
             {
-                configInfoDic.Add(info.panels[i].Name, info.panels[i]);
+                panelConfigDic.Add(list.panels[i].name, list.panels[i]);
             }
 
             GameObject.DontDestroyOnLoad(canvas);
-            //GameObject.DontDestroyOnLoad(eventSystem);
 
             hideRoot = canvas.Find("HideRoot");
             baseRoot = canvas.Find("BaseRoot");
@@ -75,12 +84,11 @@ namespace WKC
         /// <param name="panelName">UI面板名字</param>
         public bool LoadPanel(PanelName panelName)
         {
-            if (!loadedPanels.ContainsKey(panelName))
+            if (!loadedPanelDic.ContainsKey(panelName))
             {
-                GameObject panelPrefab = Resources.Load<GameObject>(configInfoDic[panelName].Path);
+                GameObject panelPrefab = Resources.Load<GameObject>(panelConfigDic[panelName].path);
                 if (!panelPrefab)
                 {
-                    Debug.LogError(configInfoDic[panelName].Path);
                     Debug.LogError("没有加载到UI面板Prefab：" + panelName);
                     return false;
                 }
@@ -100,9 +108,9 @@ namespace WKC
                     else
                     {
                         basePanel.panelName = panelName;
-                        basePanel.panelType = configInfoDic[panelName].Type;
+                        basePanel.panelType = panelConfigDic[panelName].type;
                         basePanel.Init();
-                        loadedPanels.Add(panelName, basePanel);
+                        loadedPanelDic.Add(panelName, basePanel);
                         return true;
                     }
                 }
@@ -116,16 +124,16 @@ namespace WKC
         /// <param name="panelName">UI面板名字</param>
         public void UnLoadPanel(PanelName panelName)
         {
-            if (loadedPanels.ContainsKey(panelName))
+            if (loadedPanelDic.ContainsKey(panelName))
             {
-                if (loadedPanels[panelName].panelState != PanelState.Hide)
+                if (loadedPanelDic[panelName].panelState != PanelState.Hide)
                 {
-                    loadedPanels[panelName].Hide();
+                    loadedPanelDic[panelName].Hide();
                 }
-                if (loadedPanels[panelName].panelState == PanelState.Hide)
+                if (loadedPanelDic[panelName].panelState == PanelState.Hide)
                 {
-                    loadedPanels[panelName].Destroy();
-                    loadedPanels.Remove(panelName);
+                    loadedPanelDic[panelName].Destroy();
+                    loadedPanelDic.Remove(panelName);
                 }
             }
         }
@@ -136,19 +144,19 @@ namespace WKC
         /// <param name="isUnLoadLoadingPanel">是否卸载Loading界面</param>
         public void UnLoadAllPanels(bool isUnLoadLoadingPanel)
         {
-            foreach (var item in panels.Keys)
+            foreach (var item in panelDic.Keys)
             {
                 HidePanel(item);
             }
-            while (popupWindowPanels.Count > 0)
+            while (popUpStack.Count > 0)
             {
-                HidePanel(popupWindowPanels.Peek().panelName);
+                HidePanel(popUpStack.Peek().panelName);
             }
             if (isUnLoadLoadingPanel && loadingPanel != null)
             {
                 HidePanel(loadingPanel.panelName);
             }
-            foreach (var item in loadedPanels.Keys)
+            foreach (var item in loadedPanelDic.Keys)
             {
                 if (!isUnLoadLoadingPanel && item == loadingPanel.panelName)
                 {
@@ -156,16 +164,16 @@ namespace WKC
                 }
                 else
                 {
-                    loadedPanels[item].Destroy();
+                    loadedPanelDic[item].Destroy();
                 }
             }
-            loadedPanels.Clear();
-            popupWindowPanels.Clear();
-            panels.Clear();
+            loadedPanelDic.Clear();
+            popUpStack.Clear();
+            panelDic.Clear();
 
             if (!isUnLoadLoadingPanel && loadingPanel != null)
             {
-                loadedPanels.Add(loadingPanel.panelName, loadingPanel);
+                loadedPanelDic.Add(loadingPanel.panelName, loadingPanel);
             }
         }
 
@@ -177,24 +185,24 @@ namespace WKC
         {
             if (LoadPanel(panelName))
             {
-                BasePanel basePanel = loadedPanels[panelName];
-                PanelConfigInfo info = configInfoDic[panelName];
-                SetRoot(basePanel.transform, info.Type);
-                switch (info.Type)
+                BasePanel basePanel = loadedPanelDic[panelName];
+                PanelConfig info = panelConfigDic[panelName];
+                SetRoot(basePanel.transform, info.type);
+                switch (info.type)
                 {
                     case PanelType.Base:
                     case PanelType.PopupWindow:
                     case PanelType.Tip:
-                        if (popupWindowPanels.Count > 0)
+                        if (popUpStack.Count > 0)
                         {
-                            popupWindowPanels.Peek().OnPause();
+                            popUpStack.Peek().OnPause();
                         }
                         basePanel.Show();
-                        popupWindowPanels.Push(basePanel);
+                        popUpStack.Push(basePanel);
                         break;
                     case PanelType.Panel:
                         basePanel.Show();
-                        panels.Add(panelName, basePanel);
+                        panelDic.Add(panelName, basePanel);
                         break;
                     case PanelType.Loading:
                         basePanel.Show();
@@ -212,30 +220,30 @@ namespace WKC
         /// <param name="panelName">UI面板名字</param>
         public void HidePanel(PanelName panelName)
         {
-            if (loadedPanels.ContainsKey(panelName))
+            if (loadedPanelDic.ContainsKey(panelName))
             {
-                BasePanel basePanel = loadedPanels[panelName];
-                PanelConfigInfo info = configInfoDic[panelName];
-                switch (info.Type)
+                BasePanel basePanel = loadedPanelDic[panelName];
+                PanelConfig info = panelConfigDic[panelName];
+                switch (info.type)
                 {
                     case PanelType.Base:
                     case PanelType.PopupWindow:
                     case PanelType.Tip:
-                        if (panelName == popupWindowPanels.Peek().panelName)
+                        if (panelName == popUpStack.Peek().panelName)
                         {
-                            popupWindowPanels.Pop();
+                            popUpStack.Pop();
                             basePanel.Hide();
                             basePanel.transform.SetParent(hideRoot);
-                            if (popupWindowPanels.Count > 0)
+                            if (popUpStack.Count > 0)
                             {
-                                popupWindowPanels.Peek().UnPause();
+                                popUpStack.Peek().UnPause();
                             }
                         }
                         break;
                     case PanelType.Panel:
-                        if (panels.ContainsKey(panelName))
+                        if (panelDic.ContainsKey(panelName))
                         {
-                            panels.Remove(panelName);
+                            panelDic.Remove(panelName);
                             basePanel.Hide();
                             basePanel.transform.SetParent(hideRoot);
                         }
