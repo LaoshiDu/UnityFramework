@@ -19,6 +19,7 @@ namespace WKC
 
         private string panelName;
         private PanelType panelType;
+        private bool isHaveCloseBtn;
         private static string uiPrefabsPath = Application.dataPath + "/Resources/Prefabs/UIPanels";
 
         private static bool isFirstLine = true;
@@ -33,7 +34,6 @@ namespace WKC
             GUILayout.Label("Panel名字：", GUILayout.Width(80));
             panelName = GUILayout.TextField(panelName);
             GUILayout.EndHorizontal();
-
             GUILayout.FlexibleSpace();
 
             GUILayout.BeginHorizontal();
@@ -41,7 +41,12 @@ namespace WKC
             GUILayout.Label("Panel类型：", GUILayout.Width(80));
             panelType = (PanelType)EditorGUILayout.EnumPopup(panelType);
             GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
 
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            isHaveCloseBtn = GUILayout.Toggle(isHaveCloseBtn, "是否创建关闭按钮");
+            GUILayout.EndHorizontal();
             GUILayout.FlexibleSpace();
 
             GUILayout.BeginHorizontal();
@@ -127,6 +132,22 @@ namespace WKC
             Image bg = panel.AddComponent<Image>();
             bg.color = new Color(bg.color.r, bg.color.g, bg.color.b, 0.1f);
 
+            if (isHaveCloseBtn)
+            {
+                GameObject closeBtn = new GameObject();
+                closeBtn.name = "CloseBtn";
+                closeBtn.transform.SetParent(panel.transform);
+                closeBtn.AddComponent<Image>();
+                closeBtn.AddComponent<Button>();
+
+                RectTransform btnTrans = closeBtn.GetComponent<RectTransform>();
+                btnTrans.anchorMin = Vector2.one;
+                btnTrans.anchorMax = Vector2.one;
+                btnTrans.pivot = new Vector2(0.5f, 0.5f);
+                btnTrans.anchoredPosition = new Vector2(-50, -50);
+                closeBtn.layer = LayerMask.NameToLayer("UI");
+            }
+
             panel.layer = LayerMask.NameToLayer("UI");
             if (!Directory.Exists(uiPrefabsPath))
             {
@@ -136,7 +157,7 @@ namespace WKC
             PrefabUtility.SaveAsPrefabAssetAndConnect(panel, prefabPath, InteractionMode.AutomatedAction);
             EditorPrefs.SetString("PanelName", panelName);
         }
-        
+
         private static void ModifyConfig(Dictionary<PanelType, List<GameObject>> panelDic)
         {
             string uiConfigPath = Application.dataPath + "/Resources/UIConfig";
@@ -147,33 +168,27 @@ namespace WKC
             string panelConfig = uiConfigPath + "/PanelConfig.json";
             StreamWriter sw = File.CreateText(panelConfig);
             sw.WriteLine("{");
-            sw.WriteLine("\t"+"\""+"panels"+"\""+":");
+            sw.WriteLine("\t" + "\"" + "panels" + "\"" + ":");
             sw.WriteLine("\t[");
             isFirstLine = true;
             foreach (var item in panelDic)
             {
-                int index = 0;
                 switch (item.Key)
                 {
                     case PanelType.Base:
-                        index = 1;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
+                        WriteUIConfigItem(1, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.PopupWindow:
-                        index = 101;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
+                        WriteUIConfigItem(101, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Panel:
-                        index = 201;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
+                        WriteUIConfigItem(201, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Tip:
-                        index = 301;
-                        WriteUIConfigItem(index, item.Value, sw, (int)item.Key);
+                        WriteUIConfigItem(301, item.Value, sw, (int)item.Key);
                         continue;
                     case PanelType.Loading:
-                        index = 401;
-                        WriteUIConfigItem(index,item.Value,sw,(int)item.Key);
+                        WriteUIConfigItem(401, item.Value, sw, (int)item.Key);
                         continue;
                 }
             }
@@ -183,7 +198,7 @@ namespace WKC
             sw.Close();
         }
 
-        private static void WriteUIConfigItem(int index,List<GameObject> item, StreamWriter sw,int type)
+        private static void WriteUIConfigItem(int index, List<GameObject> item, StreamWriter sw, int type)
         {
             for (int i = 0; i < item.Count; i++)
             {
@@ -235,28 +250,22 @@ namespace WKC
             sw.WriteLine("{");
             foreach (var item in panelDic)
             {
-                int index = 0;
                 switch (item.Key)
                 {
                     case PanelType.Base:
-                        index = 1;
-                        WritePanelName(index,item.Value,sw);
+                        WritePanelName(1, item.Value, sw);
                         continue;
                     case PanelType.PopupWindow:
-                        index = 101;
-                        WritePanelName(index, item.Value, sw);
+                        WritePanelName(101, item.Value, sw);
                         continue;
                     case PanelType.Panel:
-                        index = 201;
-                        WritePanelName(index, item.Value, sw);
+                        WritePanelName(201, item.Value, sw);
                         continue;
                     case PanelType.Tip:
-                        index = 301;
-                        WritePanelName(index, item.Value, sw);
+                        WritePanelName(301, item.Value, sw);
                         continue;
                     case PanelType.Loading:
-                        index = 401;
-                        WritePanelName(index, item.Value, sw);
+                        WritePanelName(401, item.Value, sw);
                         continue;
                 }
             }
@@ -273,7 +282,7 @@ namespace WKC
             }
         }
 
-        private static void WritePanelName(int index,List<GameObject> item, StreamWriter sw)
+        private static void WritePanelName(int index, List<GameObject> item, StreamWriter sw)
         {
             for (int i = 0; i < item.Count; i++)
             {

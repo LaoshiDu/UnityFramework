@@ -62,7 +62,7 @@ namespace WKC
 
             //读取面板配置文件
             TextAsset json = Resources.Load<TextAsset>("UIConfig/PanelConfig");
-            
+
             PanelConfigList list = JsonMapper.ToObject<PanelConfigList>(json.text);
             for (int i = 0; i < list.panels.Count; i++)
             {
@@ -115,7 +115,10 @@ namespace WKC
                     }
                 }
             }
-            return false;
+            else
+            {
+                return true;
+            }
         }
 
         /// <summary>
@@ -186,9 +189,8 @@ namespace WKC
             if (LoadPanel(panelName))
             {
                 BasePanel basePanel = loadedPanelDic[panelName];
-                PanelConfig info = panelConfigDic[panelName];
-                SetRoot(basePanel.transform, info.type);
-                switch (info.type)
+                SetRoot(basePanel.transform, basePanel.panelType);
+                switch (basePanel.panelType)
                 {
                     case PanelType.Base:
                     case PanelType.PopupWindow:
@@ -223,13 +225,12 @@ namespace WKC
             if (loadedPanelDic.ContainsKey(panelName))
             {
                 BasePanel basePanel = loadedPanelDic[panelName];
-                PanelConfig info = panelConfigDic[panelName];
-                switch (info.type)
+                switch (basePanel.panelType)
                 {
                     case PanelType.Base:
                     case PanelType.PopupWindow:
                     case PanelType.Tip:
-                        if (panelName == popUpStack.Peek().panelName)
+                        if (popUpStack.Count > 0 && panelName == popUpStack.Peek().panelName)
                         {
                             popUpStack.Pop();
                             basePanel.Hide();

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace WKC
 {
@@ -8,11 +9,15 @@ namespace WKC
         public PanelType panelType;
         public PanelState panelState;
 
+        private Button closeBtn;
+
         /// <summary>
         /// 初始化面板，加载时调用一次
         /// </summary>
         public virtual void Init()
-        { }
+        {
+            closeBtn = GetUIComponent<Button>("CloseBtn");
+        }
 
         /// <summary>
         /// 卸载面板
@@ -29,6 +34,10 @@ namespace WKC
         {
             gameObject.SetActive(true);
             panelState = PanelState.Showing;
+            closeBtn?.onClick.AddListener(() =>
+            {
+                UIManager.Instance.HidePanel(panelName);
+            });
         }
 
         /// <summary>
@@ -38,6 +47,7 @@ namespace WKC
         {
             gameObject.SetActive(false);
             panelState = PanelState.Hide;
+            closeBtn?.onClick.RemoveAllListeners();
         }
 
         /// <summary>
@@ -58,7 +68,7 @@ namespace WKC
 
         protected T GetUIComponent<T>(string path) where T : Component
         {
-            return transform.Find(path).GetComponent<T>();
+            return transform.Find(path)?.GetComponent<T>();
         }
     }
 }
