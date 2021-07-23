@@ -1,3 +1,4 @@
+using Aspose.Cells;
 using System;
 using System.IO;
 using UnityEditor;
@@ -64,20 +65,108 @@ namespace WKC
         }
         #endregion
 
-        /// <summary>
-        /// 给脚本写入内容
-        /// </summary>
-        /// <param name="sw"></param>
-        /// <param name="className">类名</param>
-        /// <param name="baseClass">父类</param>
-        public static void WriteScript(StreamWriter sw, string className, string baseClass = "MonoBehaviour")
+        #region Excel转换
+        [MenuItem("Tools/Excel转换/转换CSV")]
+        private static void ToCSV()
         {
-            sw.WriteLine("using UnityEngine;");
-            sw.WriteLine("using WKC;");
-            sw.WriteLine();
-            sw.WriteLine("public class {0} : {1}", className, baseClass);
-            sw.WriteLine("{");
-            sw.Write("}");
+            string excelPath = Application.dataPath + "/ExcelConfig";
+            string csvPath = Application.dataPath + "/CSVConfig/";
+
+            string[] files = Directory.GetFiles(excelPath);
+            foreach (string file in files)
+            {
+                string suffix = file.Substring(file.Length - 4);
+                if (suffix != "meta")
+                {
+                    Workbook wb = new Workbook(file);
+                    string excelName = file.Substring(excelPath.Length + 1);
+                    string path = csvPath + excelName.Substring(0, excelName.Length - 5) + ".csv";
+                    wb.Save(path, SaveFormat.CSV);
+                    string content = File.ReadAllText(path);
+                    string[] temp = content.Split('\n');
+                    FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+                    StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+                    for (int i = 0; i < temp.Length - 1; i++)
+                    {
+                        sw.Write(temp[i]+"\n");
+                    }
+                    sw.Close();
+                    fs.Close();
+                }
+            }
+            AssetDatabase.Refresh();
         }
+
+        [MenuItem("Tools/Excel转换/转换Json")]
+        private static void ToJson()
+        {
+            string csvPath = Application.dataPath + "/CSVConfig/ActorConfig.csv";
+            string content = File.ReadAllText(csvPath);
+            string[] allContent = content.Split('\n');
+            string jsonPath = Application.dataPath + "/Resources/Configs";
+            if (!Directory.Exists(jsonPath))
+            {
+                Directory.CreateDirectory(jsonPath);
+            }
+
+            string fileName = jsonPath + "/ActorConfig.json";
+
+            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+
+            string head = allContent[1];
+            string[] heads = head.Split(',');
+
+            string typeLine = allContent[2];
+            string[] types = typeLine.Split(',');
+            sw.WriteLine("[\n");
+            for (int i = 3; i < allContent.Length; i++)
+            {
+                sw.WriteLine("\t{\n");
+                string line = allContent[i];
+                string[] txt = line.Split(',');
+
+                for (int j = 0; j < txt.Length; j++)
+                {
+                    if (j < types.Length)
+                    {
+                        if (types[j] == "int" || types[j] == "float")
+                        {
+                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + txt[j]);
+                        }
+                        else if (types[j] == "string")
+                        {
+                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + "\"" + txt[j] + "\"");
+                        }
+                        else if (types[j] == "List<int>")
+                        {
+                            //string[] list = txt[j].Split(';');
+                            //sw.WriteLine("\t\t[");
+                            //for (int k = 0; k < list.Length; k++)
+                            //{
+
+                            //}
+                            //sw.WriteLine("\t\t]");
+                        }
+                        else if (types[j]=="Dic<,>")
+                        {
+                        }
+                    }
+                }
+                if (i == allContent.Length - 1)
+                {
+                    sw.WriteLine("\t}");
+                }
+                else
+                {
+                    sw.WriteLine("\t},");
+                }
+            }
+            sw.Write("]");
+            sw.Close();
+            fs.Close();
+            AssetDatabase.Refresh();
+        }
+        #endregion
     }
 }

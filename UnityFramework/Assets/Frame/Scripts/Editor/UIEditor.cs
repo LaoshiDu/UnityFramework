@@ -72,9 +72,25 @@ namespace WKC
             string script = scriptPath + "/" + panelName + ".cs";
 
             StreamWriter sw = File.CreateText(script);
-            EditorExtension.WriteScript(sw, panelName, "BasePanel");
+            WriteScript(sw, panelName, "BasePanel");
             sw.Close();
             EditorPrefs.SetInt("PanelType", (int)panelType);
+        }
+
+        /// <summary>
+        /// 给脚本写入内容
+        /// </summary>
+        /// <param name="sw"></param>
+        /// <param name="className">类名</param>
+        /// <param name="baseClass">父类</param>
+        private static void WriteScript(StreamWriter sw, string className, string baseClass = "MonoBehaviour")
+        {
+            sw.WriteLine("using UnityEngine;");
+            sw.WriteLine("using WKC;");
+            sw.WriteLine();
+            sw.WriteLine("public class {0} : {1}", className, baseClass);
+            sw.WriteLine("{");
+            sw.Write("}");
         }
 
         [DidReloadScripts]
