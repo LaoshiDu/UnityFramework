@@ -7,8 +7,8 @@ namespace WKC
     {
         void Start()
         {
-            DataStorage.Instance.LoadJsonsData();
             UIManager.Instance.Init();
+            DataStorage.Instance.LoadJsonsData();
             LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
             {
                 StartCoroutine(SaveDataToLocal());
