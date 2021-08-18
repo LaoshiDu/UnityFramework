@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace WKC
@@ -9,6 +8,7 @@ namespace WKC
     {
         private float progess;
         private EventCall callback;
+        private object[] args;
 
         /// <summary>
         /// 同步加载场景
@@ -23,17 +23,11 @@ namespace WKC
         /// 异步加载场景
         /// </summary>
         /// <param name="levelName">场景名字</param>
-        public void LoadSceneAsync(string levelName, EventCall fun = null)
+        public void LoadSceneAsync(string levelName, EventCall fun = null, params object[] obj)
         {
-            if (GameConfig.Instance.startie == null)
-            {
-                GameObject obj = new GameObject("StartIEnumerator");
-                GameConfig.Instance.startie = obj.AddComponent<StartIEnumerator>();
-                GameObject.DontDestroyOnLoad(obj);
-            }
-            callback = null;
-            callback += fun;
-            GameConfig.Instance.startie.StartCoroutine(IELoadScene(levelName));
+            callback = fun;
+            args = obj;
+            TimeManager.Instance.StartCoroutine(IELoadScene(levelName));
         }
 
         IEnumerator IELoadScene(string levelName)
@@ -65,7 +59,7 @@ namespace WKC
             }
             UIManager.Instance.HidePanel(PanelName.LoadingPanel);
             async.allowSceneActivation = true;
-            callback?.Invoke();
+            callback?.Invoke(args);
         }
     }
 }

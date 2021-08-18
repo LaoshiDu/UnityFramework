@@ -7,9 +7,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using WKC;
-using System.Collections;
-using System.Threading.Tasks;
-using System.Threading;
 
 public class UIEditor : EditorWindow
 {

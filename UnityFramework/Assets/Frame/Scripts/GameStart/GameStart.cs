@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace WKC
@@ -11,10 +9,11 @@ namespace WKC
         {
             DataStorage.Instance.LoadJsonsData();
             UIManager.Instance.Init();
-            //StartCoroutine(SaveDataToLocal());
-            LoadSceneManager.Instance.LoadSceneAsync("Level1",(args)=> 
+            LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
             {
+                StartCoroutine(SaveDataToLocal());
             });
+
         }
 
         IEnumerator SaveDataToLocal()
