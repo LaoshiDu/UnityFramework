@@ -1,7 +1,6 @@
 using Aspose.Cells;
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace WKC
     /// <summary>
     /// 编辑器扩展
     /// </summary>
-    public class EditorExtension
+    public class EditorExtension : EditorWindow
     {
         #region 打开文件夹
         [MenuItem("Tools/打开文件夹/Application.dataPath", false, 1)]
@@ -106,141 +105,152 @@ namespace WKC
         [MenuItem("Tools/Excel转换/转换Json")]
         private static void ToJson()
         {
-            string csvPath = Application.streamingAssetsPath + "/CSVConfig/TestConfig.csv";
-            string content = File.ReadAllText(csvPath);
-            string[] allContent = content.Split('\n');
-            string jsonPath = Application.dataPath + "/Resources/Configs";
-            if (!Directory.Exists(jsonPath))
+            string csvPath = Application.streamingAssetsPath + "/CSVConfig";
+            
+            string[] files = Directory.GetFiles(csvPath);
+            foreach (string file in files)
             {
-                Directory.CreateDirectory(jsonPath);
+                string suffix = file.Substring(file.Length - 4);
+                if (suffix != "meta")
+                {
+                    string csvName = file.Substring(csvPath.Length + 1);
+                    string className = csvName.Substring(0, csvName.Length - 4);
+
+                    string content = File.ReadAllText(file);
+                    string[] allContent = content.Split('\n');
+                    string jsonPath = Application.dataPath + "/Resources/Configs";
+                    if (!Directory.Exists(jsonPath))
+                    {
+                        Directory.CreateDirectory(jsonPath);
+                    }
+                    string fileName = jsonPath + "/" + className + ".json";
+
+                    FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                    StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+
+                    string head = allContent[1];
+                    string[] heads = head.Split(',');
+                    string typeLine = allContent[2];
+                    string[] types = typeLine.Split(',');
+                    sw.WriteLine("[");
+
+                    for (int i = 3; i < allContent.Length - 1; i++)
+                    {
+                        string line = allContent[i];
+                        string[] txt = line.Split(',');
+                        if (string.IsNullOrWhiteSpace(txt[0]) || string.IsNullOrEmpty(txt[0]))
+                        {
+                            continue;
+                        }
+                        if (i > 3)
+                        {
+                            sw.WriteLine("\t},");
+                        }
+                        sw.WriteLine("\t{");
+
+                        for (int j = 0; j < txt.Length; j++)
+                        {
+                            if (types[j].Trim() == "int" || types[j].Trim() == "float")
+                            {
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":" + txt[j].Trim());
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + txt[j] + ",");
+                                }
+                            }
+                            else if (types[j].Trim() == "string")
+                            {
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":" + "\"" + txt[j].Trim() + "\"");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + "\"" + txt[j] + "\"" + ",");
+                                }
+                            }
+                            else if (types[j].Trim() == "List<int>" || types[j].Trim() == "List<float>")
+                            {
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":");
+                                }
+                                string[] list = txt[j].Split(';');
+                                sw.WriteLine("\t\t[");
+                                for (int k = 0; k < list.Length; k++)
+                                {
+                                    if (k == list.Length - 1)
+                                    {
+                                        sw.WriteLine("\t\t\t" + list[k].Trim());
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine("\t\t\t" + list[k].Trim() + ",");
+                                    }
+                                }
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t]");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t],");
+                                }
+                            }
+                            else if (types[j].Trim() == "List<string>")
+                            {
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":");
+                                }
+                                string[] list = txt[j].Split(';');
+                                sw.WriteLine("\t\t[");
+                                for (int k = 0; k < list.Length; k++)
+                                {
+                                    if (k == list.Length - 1)
+                                    {
+                                        sw.WriteLine("\t\t\t" + "\"" + list[k].Trim() + "\"");
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine("\t\t\t" + "\"" + list[k].Trim() + "\"" + ",");
+                                    }
+                                }
+                                if (j == txt.Length - 1)
+                                {
+                                    sw.WriteLine("\t\t]");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("\t\t],");
+                                }
+                            }
+                            else if (types[j].Trim() == "Dic<int,int>")
+                            {
+
+                            }
+                        }
+                        if (string.IsNullOrEmpty(allContent[i + 1].Trim().Split(',')[0]))
+                        {
+                            sw.WriteLine("\t}");
+                        }
+                    }
+                    sw.Write("]");
+                    sw.Close();
+                    fs.Close();
+                }
             }
-
-            string fileName = jsonPath + "/TestConfig.json";
-
-            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-            StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
-
-            string head = allContent[1];
-            string[] heads = head.Split(',');
-            string typeLine = allContent[2];
-            string[] types = typeLine.Split(',');
-            sw.WriteLine("[");
-
-            for (int i = 3; i < allContent.Length - 1; i++)
-            {
-                string line = allContent[i];
-                string[] txt = line.Split(',');
-                if (string.IsNullOrWhiteSpace(txt[0]) || string.IsNullOrEmpty(txt[0]))
-                {
-                    continue;
-                }
-                if (i > 3)
-                {
-                    sw.WriteLine("\t},");
-                }
-                sw.WriteLine("\t{");
-
-                for (int j = 0; j < txt.Length; j++)
-                {
-                    if (types[j].Trim() == "int" || types[j].Trim() == "float")
-                    {
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":" + txt[j].Trim());
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + txt[j] + ",");
-                        }
-                    }
-                    else if (types[j].Trim() == "string")
-                    {
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":" + "\"" + txt[j].Trim() + "\"");
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":" + "\"" + txt[j] + "\"" + ",");
-                        }
-                    }
-                    else if (types[j].Trim() == "List<int>" || types[j].Trim() == "List<float>")
-                    {
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":");
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":");
-                        }
-                        string[] list = txt[j].Split(';');
-                        sw.WriteLine("\t\t[");
-                        for (int k = 0; k < list.Length; k++)
-                        {
-                            if (k == list.Length - 1)
-                            {
-                                sw.WriteLine("\t\t\t" + list[k].Trim());
-                            }
-                            else
-                            {
-                                sw.WriteLine("\t\t\t" + list[k].Trim() + ",");
-                            }
-                        }
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t]");
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t],");
-                        }
-                    }
-                    else if (types[j].Trim() == "List<string>")
-                    {
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j].Trim() + "\"" + ":");
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t" + "\"" + heads[j] + "\"" + ":");
-                        }
-                        string[] list = txt[j].Split(';');
-                        sw.WriteLine("\t\t[");
-                        for (int k = 0; k < list.Length; k++)
-                        {
-                            if (k == list.Length - 1)
-                            {
-                                sw.WriteLine("\t\t\t"+ "\""+ list[k].Trim()+"\"");
-                            }
-                            else
-                            {
-                                sw.WriteLine("\t\t\t" + "\"" + list[k].Trim() + "\"" + ",");
-                            }
-                        }
-                        if (j == txt.Length - 1)
-                        {
-                            sw.WriteLine("\t\t]");
-                        }
-                        else
-                        {
-                            sw.WriteLine("\t\t],");
-                        }
-                    }
-                    else if (types[j].Trim() == "Dic<int,int>")
-                    {
-                        
-                    }
-                }
-                if (string.IsNullOrEmpty(allContent[i + 1].Trim().Split(',')[0]))
-                {
-                    sw.WriteLine("\t}");
-                }
-            }
-            sw.Write("]");
-            sw.Close();
-            fs.Close();
             AssetDatabase.Refresh();
         }
 
@@ -268,19 +278,23 @@ namespace WKC
 
                     string content = File.ReadAllText(file);
                     string[] temp = content.Split('\n');
-                    
+
                     FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
                     StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
                     sw.WriteLine("using System.Collections.Generic;");
-                    sw.WriteLine("public class "+className);
+                    sw.WriteLine("using System.IO;");
+                    sw.WriteLine("using UnityEngine;");
+                    sw.WriteLine("public class " + className);
                     sw.WriteLine("{");
 
                     string[] annotation = temp[0].Split(',');
 
                     string[] fields = temp[1].Split(',');
                     string[] fieldTyps = temp[2].Split(',');
+
                     for (int i = 0; i < fieldTyps.Length; i++)
                     {
+                        if (string.IsNullOrEmpty(fields[i].Trim())) continue;
                         sw.WriteLine("\t/// <summary>");
                         sw.WriteLine("\t/// " + annotation[i].Trim());
                         sw.WriteLine("\t/// </summary>");
@@ -288,13 +302,313 @@ namespace WKC
                         sw.WriteLine();
                     }
 
-
+                    #region List
                     sw.WriteLine("\tpublic static List<" + className + "> GetList()");
                     sw.WriteLine("\t{");
                     sw.WriteLine("\t\tList<" + className + "> list = new List<" + className + ">();");
+                    sw.WriteLine("\t\tstring csvPath = Application.streamingAssetsPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
+                    sw.WriteLine("\t\tstring content = File.ReadAllText(csvPath);");
+                    sw.WriteLine("\t\tstring[] datas = content.Split('\\n');");
+                    sw.WriteLine("\t\tfor (int i = 3; i < datas.Length; i++)");
+                    sw.WriteLine("\t\t{");
+                    sw.WriteLine("\t\t\tstring[] result = datas[i].Split(',');");
+                    sw.WriteLine("\t\t\tif (string.IsNullOrEmpty(result[0])) continue;");
+                    sw.WriteLine("\t\t\t" + className + " config = new " + className + "();");
+                    sw.WriteLine("\t\t\tfor (int j = 0; j < result.Length; j++)");
+                    sw.WriteLine("\t\t\t{");
+                    
+                    for (int i = 0; i < fieldTyps.Length; i++)
+                    {
+                        if (fieldTyps[i].Trim() == "int")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = int.Parse(result[" + i + "]);");
+                        }
+                        else if (fieldTyps[i].Trim() == "float")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = float.Parse(result[" + i + "]);");
+                        }
+                        else if (fieldTyps[i].Trim() == "string")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = result[" + i + "];");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "s[k]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(float.Parse(" + fields[i].Trim() + "s[k]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "s[k]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';',',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] "+ fields[i].Trim() + "Items = "+ fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0]),int.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0]),float.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0])," + fields[i].Trim() + "Items[1]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0],int.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0],float.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0]," + fields[i].Trim() + "Items[1]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                    }
+
+                    
+                    sw.WriteLine("\t\t\t}");
+                    sw.WriteLine("\t\t\tlist.Add(config);");
+                    sw.WriteLine("\t\t}");
+
                     sw.WriteLine("\t\treturn list;");
                     sw.WriteLine("\t}");
+                    #endregion
 
+                    #region 字典
+                    sw.WriteLine("\tpublic static Dictionary<int," + className + "> GetDic()");
+                    sw.WriteLine("\t{");
+                    sw.WriteLine("\t\tDictionary<int," + className + "> dic = new Dictionary<int," + className + ">();");
+                    sw.WriteLine("\t\tstring csvPath = Application.streamingAssetsPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
+                    sw.WriteLine("\t\tstring content = File.ReadAllText(csvPath);");
+                    sw.WriteLine("\t\tstring[] datas = content.Split('\\n');");
+                    sw.WriteLine("\t\tfor (int i = 3; i < datas.Length; i++)");
+                    sw.WriteLine("\t\t{");
+                    sw.WriteLine("\t\t\tstring[] result = datas[i].Split(',');");
+                    sw.WriteLine("\t\t\tif (string.IsNullOrEmpty(result[0])) continue;");
+                    sw.WriteLine("\t\t\t" + className + " config = new " + className + "();");
+                    sw.WriteLine("\t\t\tfor (int j = 0; j < result.Length; j++)");
+                    sw.WriteLine("\t\t\t{");
+
+                    for (int i = 0; i < fieldTyps.Length; i++)
+                    {
+                        if (fieldTyps[i].Trim() == "int")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = int.Parse(result[" + i + "]);");
+                        }
+                        else if (fieldTyps[i].Trim() == "float")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = float.Parse(result[" + i + "]);");
+                        }
+                        else if (fieldTyps[i].Trim() == "string")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = result[" + i + "];");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "s[k]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(float.Parse(" + fields[i].Trim() + "s[k]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "List<string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim() + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "s[k]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0]),int.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0]),float.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<int;string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(int.Parse(" + fields[i].Trim() + "Items[0])," + fields[i].Trim() + "Items[1]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;int>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0],int.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;float>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0],float.Parse(" + fields[i].Trim() + "Items[1]));");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                        else if (fieldTyps[i].Trim() == "Dictionary<string;string>")
+                        {
+                            sw.WriteLine("\t\t\t\tconfig." + fields[i].Trim() + " = new " + fieldTyps[i].Trim().Replace(';', ',') + "();");
+                            sw.WriteLine("\t\t\t\tif (!string.IsNullOrEmpty(result[" + i + "]))");
+                            sw.WriteLine("\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\tstring[] " + fields[i].Trim() + "s = result[" + i + "].Split(';');");
+                            sw.WriteLine("\t\t\t\t\tfor (int k = 0; k < " + fields[i].Trim() + "s.Length; k++)");
+                            sw.WriteLine("\t\t\t\t\t{");
+                            sw.WriteLine("\t\t\t\t\t\tstring[] " + fields[i].Trim() + "Items = " + fields[i].Trim() + "s[k].Split('|');");
+                            sw.WriteLine("\t\t\t\t\t\tconfig." + fields[i].Trim() + ".Add(" + fields[i].Trim() + "Items[0]," + fields[i].Trim() + "Items[1]);");
+                            sw.WriteLine("\t\t\t\t\t}");
+                            sw.WriteLine("\t\t\t\t}");
+                        }
+                    }
+
+
+                    sw.WriteLine("\t\t\t}");
+                    sw.WriteLine("\t\t\tdic.Add(config.ID,config);");
+                    sw.WriteLine("\t\t}");
+
+                    sw.WriteLine("\t\treturn dic;");
+                    sw.WriteLine("\t}");
+                    #endregion
 
                     sw.Write("}");
                     sw.Close();
@@ -302,6 +616,22 @@ namespace WKC
                 }
             }
             AssetDatabase.Refresh();
+        }
+        #endregion
+
+        #region 清除数据
+        [MenuItem("Tools/清除数据/清除PlayerPrefs")]
+        private static void ClearPlayerPrefs()
+        {
+            PlayerPrefs.DeleteAll();
+        }
+        [MenuItem("Tools/清除数据/清除Json")]
+        private static void ClearJson()
+        {
+            if (Directory.Exists(Application.persistentDataPath + "/UserData"))
+            {
+                Directory.Delete(Application.persistentDataPath + "/UserData", true);
+            }
         }
         #endregion
     }

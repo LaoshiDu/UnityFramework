@@ -292,9 +292,8 @@ namespace WKC
             {
                 AssetDatabase.Refresh();
             }
-            catch (Exception)
+            catch
             {
-                throw;
             }
         }
 
