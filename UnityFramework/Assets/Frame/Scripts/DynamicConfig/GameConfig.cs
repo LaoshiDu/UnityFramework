@@ -5,6 +5,9 @@ namespace WKC
 {
     public class GameConfig : Singleton<GameConfig>
     {
+        [HideInInspector]
+        public StartIEnumerator startie;
+
         [Header("°æ±¾ºÅ")]
         public string version = "";
 

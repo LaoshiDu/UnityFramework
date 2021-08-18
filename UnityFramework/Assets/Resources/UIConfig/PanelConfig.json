@@ -1,6 +1,10 @@
 {
 	"panels":
 	[
-
+		{
+			"name":401,
+			"type":4,
+			"path":"Prefabs/UIPanels/LoadingPanel"
+		}
 	]
 }

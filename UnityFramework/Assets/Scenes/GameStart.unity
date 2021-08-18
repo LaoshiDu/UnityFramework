@@ -347,6 +347,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f42d7e922e8f5b4d9e80b8608be19e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startie: {fileID: 0}
   version: 500
   isClearUserData: 1
 --- !u!4 &739075655
