@@ -73,7 +73,7 @@ public class ReporterModificationProcessor : UnityEditor.AssetModificationProces
             EditorApplication.update += Update;
         }
 
-        static bool isCompiling = true;
+        static bool isCompiling = false;
         static void Update()
         {
             if ( !EditorApplication.isCompiling && isCompiling )
@@ -89,7 +89,7 @@ public class ReporterModificationProcessor : UnityEditor.AssetModificationProces
                 build_info.Close();
             }
 
-            isCompiling = EditorApplication.isCompiling;
+            //isCompiling = EditorApplication.isCompiling;
         }
     }
 }
