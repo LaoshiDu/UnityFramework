@@ -52,6 +52,12 @@ public enum PanelType
     Loading = 4
 }
 
+public enum JoyStickType
+{
+    Static,
+    Dynamic
+}
+
 #endregion
 
 #region ½á¹¹Ìå
