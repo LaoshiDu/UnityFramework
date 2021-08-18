@@ -7,6 +7,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using WKC;
+using System.Collections;
+using System.Threading.Tasks;
+using System.Threading;
 
 public class UIEditor : EditorWindow
 {
@@ -22,7 +25,7 @@ public class UIEditor : EditorWindow
     private static string uiPrefabsPath = Application.dataPath + "/Resources/Prefabs/UIPanels";
 
     private static bool isFirstLine = true;
-
+    
     private void OnGUI()
     {
         GUILayout.BeginHorizontal();
@@ -121,7 +124,19 @@ public class UIEditor : EditorWindow
             }
         }
 
-        UpdatePanelName();
+        EditorApplication.update += MyUpdate;
+    }
+
+    private static float timer = 0;
+    private static void MyUpdate()
+    {
+        timer += Time.deltaTime;
+        if (timer >= 1)
+        {
+            timer = 0;
+            EditorApplication.update -= MyUpdate;
+            UpdatePanelName();
+        }
     }
 
     private void CreatePrefab()

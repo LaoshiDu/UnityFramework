@@ -633,4 +633,10 @@ public class EditorExtension : EditorWindow
         }
     }
     #endregion
+
+    [MenuItem("Tools/ÖØÆôÏîÄ¿", false, -10)]
+    private static void RestartUnity()
+    {
+        EditorApplication.OpenProject(Application.dataPath.Replace("Assets", string.Empty));
+    }
 }

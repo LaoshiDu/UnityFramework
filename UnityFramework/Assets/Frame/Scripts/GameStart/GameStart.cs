@@ -14,7 +14,6 @@ namespace WKC
             //StartCoroutine(SaveDataToLocal());
             LoadSceneManager.Instance.LoadSceneAsync("Level1",(args)=> 
             {
-                Debug.LogError(11111);
             });
         }
 
