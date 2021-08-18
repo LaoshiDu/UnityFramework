@@ -58,6 +58,12 @@ public enum JoyStickType
     Dynamic
 }
 
+public enum AssetLoadType
+{
+    Resources,
+    AssetBundle
+}
+
 #endregion
 
 #region ½á¹¹Ìå

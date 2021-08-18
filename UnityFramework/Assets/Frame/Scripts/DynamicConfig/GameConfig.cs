@@ -10,5 +10,8 @@ namespace WKC
 
         [Header("清除玩家通过Json保存的数据")]
         public bool isClearUserData;
+
+        [Header("资源加载方式")]
+        public AssetLoadType loadType = AssetLoadType.Resources;
     }
 }

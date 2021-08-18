@@ -43,5 +43,17 @@ namespace WKC
             trans.localPosition = Vector3.zero;
             trans.localRotation = Quaternion.identity;
         }
+
+        /// <summary>
+        /// 销毁所有的子物体
+        /// </summary>
+        /// <param name="parent"></param>
+        public static void DestroyAllChild(Transform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                GameObject.Destroy(parent.GetChild(i).gameObject);
+            }
+        }
     }
 }

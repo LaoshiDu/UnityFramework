@@ -9,10 +9,11 @@ namespace WKC
         {
             UIManager.Instance.Init();
             DataStorage.Instance.LoadJsonsData();
-            LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
-            {
-                StartCoroutine(SaveDataToLocal());
-            });
+            ObjectPoolManager.Instance.Init();
+            //LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
+            //{
+            //    StartCoroutine(SaveDataToLocal());
+            //});
 
         }
 
