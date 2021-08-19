@@ -86,7 +86,17 @@ namespace WKC
         {
             if (!loadedPanelDic.ContainsKey(panelName))
             {
-                GameObject panelPrefab = Resources.Load<GameObject>(panelConfigDic[panelName].path);
+                GameObject panelPrefab = null;
+                switch (GameConfig.Instance.loadType)
+                {
+                    case AssetLoadType.Resources:
+                        panelPrefab = Resources.Load<GameObject>(panelConfigDic[panelName].path);
+                        break;
+                    case AssetLoadType.AssetBundle:
+                        panelPrefab = AssetBundleManager.Instance.ResoucesLoadFromAB<GameObject>("uipanels", panelName.ToString());
+                        break;
+                }
+
                 if (!panelPrefab)
                 {
                     Debug.LogError("没有加载到UI面板Prefab：" + panelName);

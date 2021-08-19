@@ -19,7 +19,7 @@ namespace WKC
         {
             get
             {
-                return Application.streamingAssetsPath + "/";
+                return Application.streamingAssetsPath + "/ABPackage/";
             }
         }
 
@@ -30,13 +30,7 @@ namespace WKC
         {
             get
             {
-#if UNITY_IOS
-            return "IOS";
-#elif UNITY_ANDROID
-                return "Android";
-#else
-            return "StandaloneWindows";
-#endif
+                return "ABPackage";
             }
         }
 

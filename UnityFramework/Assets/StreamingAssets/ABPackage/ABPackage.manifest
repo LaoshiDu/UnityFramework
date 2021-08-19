@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 2454329089
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: uipanels
+      Dependencies: {}

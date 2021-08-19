@@ -40,7 +40,10 @@ namespace WKC
                     {
                         singleton = new GameObject("SingletonObject");
                     }
+#if UNITY_EDITOR
+#else
                     DontDestroyOnLoad(singleton);
+#endif
                     _instance = singleton.GetComponent<T>();
                     if (_instance == null)
                     {

@@ -1,7 +1,7 @@
 ﻿预制件ID,AB包资源名称#分割,Resource资源路径,初始数量
 ID,ABName,resPath,PreloadAmount
 int,string,string,int
-1,shader#CircleShader,Prefabs/UIPanels#LoadingPanel,3
+1,uipanels#LoadingPanel,Prefabs/UIPanels#LoadingPanel,3
 ,,,,
 ,,,,
 ,,,,
