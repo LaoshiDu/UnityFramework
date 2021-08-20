@@ -7,6 +7,8 @@ namespace WKC
 {
     public class UIManager : BaseMgr<UIManager>
     {
+        public Material gray;
+
         private Transform canvas;
         private GameObject eventSystem;
 
@@ -76,6 +78,8 @@ namespace WKC
             panelRoot = canvas.Find("PanelRoot");
             tipRoot = canvas.Find("TipRoot");
             loadingRoot = canvas.Find("LoadingRoot");
+
+            gray = Resources.Load<Material>("Materials/Gray");
         }
 
         /// <summary>
