@@ -7,7 +7,6 @@ namespace WKC
     public class LoadSceneManager : BaseMgr<LoadSceneManager>
     {
         private float progess;
-        private EventCall callback;
         private object[] args;
 
         /// <summary>

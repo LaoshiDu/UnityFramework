@@ -1,31 +1,24 @@
+using UnityEngine;
+
 namespace WKC
 {
-    public class GameStart : Singleton<GameStart>
+    public class GameStart : MonoBehaviour
     {
         private void Awake()
         {
-            ConfigManager.Instance.Init(FrameInit);
+            FrameManager.Instance.Init(StartGame);
         }
-
-        private void FrameInit(params object[] args)
-        {
-            AtlasManager.Instance.Init();
-            UIManager.Instance.Init();
-            ObjectPoolManager.Instance.Init();
-            StartGame();
-        }
-
-        private void StartGame()
+        
+        private void StartGame(params object[] args)
         {
             DataStorage.Instance.LoadJsonsData();
-            LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
+            LoadSceneManager.Instance.LoadSceneAsync("Level1", (e) =>
             {
                 TimeManager.Instance.UpdatePerSecondEventHandler += SaveDataToLocal;
                 UIManager.Instance.ShowPanel(PanelName.MainMenuPanel);
             });
         }
-
-
+        
         private void SaveDataToLocal()
         {
             DataStorage.Instance.userdata.gold++;

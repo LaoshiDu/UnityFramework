@@ -11,6 +11,7 @@ namespace WKC
     /// <typeparam name="T"></typeparam>
     public class BaseMgr<T> where T : class, new()
     {
+        public EventCall callback;
         private static T instance;
         public static T Instance
         {
@@ -31,6 +32,7 @@ namespace WKC
     /// <typeparam name="T"></typeparam>
     public class Singleton<T> : MonoBehaviour where T : Component
     {
+        public EventCall callback;
         private static T _instance;
         public static T Instance
         {

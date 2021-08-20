@@ -19,7 +19,7 @@ namespace WKC
         {
             get
             {
-                return Application.streamingAssetsPath + "/ABPackage/";
+                return Application.persistentDataPath + "/ABPackage/";
             }
         }
 

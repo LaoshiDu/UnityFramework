@@ -10,11 +10,10 @@ namespace WKC
         private string csvPath = Application.persistentDataPath + "/CSVConfig/";
         private int csvCount = 0;
         private int completedCount = 0;
-        private EventCall completed;
 
-        public void Init(EventCall callback)
+        public void Init(EventCall completed)
         {
-            completed = callback;
+            callback = completed;
             string streamingAssetsPath = Application.streamingAssetsPath + "/CSVConfig";
             
             if (!Directory.Exists(csvPath))
@@ -57,7 +56,7 @@ namespace WKC
                         completedCount++;
                         if (completedCount == csvCount)
                         {
-                            completed?.Invoke();
+                            callback?.Invoke();
                         }
                         break;
                 }

@@ -441,7 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 0
-  isClearUserData: 1
+  isClearUserData: 0
   loadType: 0
 --- !u!4 &739075655
 Transform:
