@@ -16,6 +16,7 @@ public class LoadingPanel : BasePanel
     {
         base.Show();
         EventCenterManager.Instance.AddEventListener(EventName.LoadingProgess, UpdateProgress);
+        AtlasManager.Instance.SetSprite(progress, "TestAtlas", "Test");
     }
 
     private void UpdateProgress(object[] args)

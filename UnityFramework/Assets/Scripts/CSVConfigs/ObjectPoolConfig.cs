@@ -26,7 +26,7 @@ public class ObjectPoolConfig
 	public static List<ObjectPoolConfig> GetList()
 	{
 		List<ObjectPoolConfig> list = new List<ObjectPoolConfig>();
-		string csvPath = Application.streamingAssetsPath +"/CSVConfig/ObjectPoolConfig.csv";
+		string csvPath = Application.persistentDataPath +"/CSVConfig/ObjectPoolConfig.csv";
 		string content = File.ReadAllText(csvPath);
 		string[] datas = content.Split('\n');
 		for (int i = 3; i < datas.Length; i++)
@@ -48,7 +48,7 @@ public class ObjectPoolConfig
 	public static Dictionary<int,ObjectPoolConfig> GetDic()
 	{
 		Dictionary<int,ObjectPoolConfig> dic = new Dictionary<int,ObjectPoolConfig>();
-		string csvPath = Application.streamingAssetsPath +"/CSVConfig/ObjectPoolConfig.csv";
+		string csvPath = Application.persistentDataPath +"/CSVConfig/ObjectPoolConfig.csv";
 		string content = File.ReadAllText(csvPath);
 		string[] datas = content.Split('\n');
 		for (int i = 3; i < datas.Length; i++)

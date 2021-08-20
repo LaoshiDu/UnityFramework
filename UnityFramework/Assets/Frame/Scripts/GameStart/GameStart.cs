@@ -1,30 +1,35 @@
-using System.Collections;
-using UnityEngine;
-
 namespace WKC
 {
-    public class GameStart : MonoBehaviour
+    public class GameStart : Singleton<GameStart>
     {
-        void Start()
+        private void Awake()
         {
-            UIManager.Instance.Init();
-            DataStorage.Instance.LoadJsonsData();
-            ObjectPoolManager.Instance.Init();
-            LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
-            {
-                StartCoroutine(SaveDataToLocal());
-            });
-
+            ConfigManager.Instance.Init(FrameInit);
         }
 
-        IEnumerator SaveDataToLocal()
+        private void FrameInit(params object[] args)
         {
-            while (true)
+            AtlasManager.Instance.Init();
+            UIManager.Instance.Init();
+            ObjectPoolManager.Instance.Init();
+            StartGame();
+        }
+
+        private void StartGame()
+        {
+            DataStorage.Instance.LoadJsonsData();
+            LoadSceneManager.Instance.LoadSceneAsync("Level1", (args) =>
             {
-                DataStorage.Instance.userdata.gold++;
-                DataStorage.Instance.SaveJsonDataToLocal();
-                yield return new WaitForSeconds(1f);
-            }
+                TimeManager.Instance.UpdatePerSecondEventHandler += SaveDataToLocal;
+                UIManager.Instance.ShowPanel(PanelName.MainMenuPanel);
+            });
+        }
+
+
+        private void SaveDataToLocal()
+        {
+            DataStorage.Instance.userdata.gold++;
+            DataStorage.Instance.SaveJsonDataToLocal();
         }
     }
 }

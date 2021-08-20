@@ -71,10 +71,13 @@ public class EditorExtension : EditorWindow
         string excelPath = Application.dataPath + "/ExcelConfig";
         string csvPath = Application.streamingAssetsPath + "/CSVConfig/";
 
-        if (!Directory.Exists(csvPath))
+        if (Directory.Exists(csvPath))
         {
-            Directory.CreateDirectory(csvPath);
+            Directory.Delete(csvPath, true);
         }
+        Directory.CreateDirectory(csvPath);
+
+        string csContent2 = "";
 
         string[] files = Directory.GetFiles(excelPath);
         foreach (string file in files)
@@ -84,6 +87,7 @@ public class EditorExtension : EditorWindow
             {
                 Workbook wb = new Workbook(file);
                 string excelName = file.Substring(excelPath.Length + 1);
+                csContent2 += excelName.Substring(0, excelName.Length - 5) + "|";
                 string path = csvPath + excelName.Substring(0, excelName.Length - 5) + ".csv";
                 wb.Save(path, SaveFormat.CSV);
                 string content = File.ReadAllText(path);
@@ -97,6 +101,24 @@ public class EditorExtension : EditorWindow
                 sw.Close();
                 fs.Close();
             }
+        }
+        
+        string fileName = Application.dataPath+ "/Frame/Scripts/ConfigManager/Configs.cs";
+        FileStream csfs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+        StreamWriter cssw = new StreamWriter(csfs, System.Text.Encoding.UTF8);
+        cssw.WriteLine("public class Configs");
+        cssw.WriteLine("{");
+        string csContent1 = "public const string configsString = "+"\"";
+        csContent2 = csContent2.Substring(0, csContent2.Length - 1);
+        csContent2 += "\";";
+        cssw.WriteLine("\t"+csContent1+csContent2);
+        cssw.Write("}");
+        cssw.Close();
+        csfs.Close();
+
+        if (Directory.Exists(Application.persistentDataPath + "/CSVConfig"))
+        {
+            Directory.Delete(Application.persistentDataPath + "/CSVConfig", true);
         }
         AssetDatabase.Refresh();
     }
@@ -252,11 +274,16 @@ public class EditorExtension : EditorWindow
         }
         AssetDatabase.Refresh();
     }
-
-
+    
     [MenuItem("Tools/Excel转换/转换C#代码")]
     private static void ToCSharp()
     {
+        string path = Application.dataPath + "/Scripts/CSVConfigs";
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path,true);
+        }
+
         string csvPath = Application.streamingAssetsPath + "/CSVConfig";
 
         string[] files = Directory.GetFiles(csvPath);
@@ -267,7 +294,7 @@ public class EditorExtension : EditorWindow
             {
                 string csvName = file.Substring(csvPath.Length + 1);
                 string className = csvName.Substring(0, csvName.Length - 4);
-                string path = Application.dataPath + "/Scripts/CSVConfigs";
+                
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -305,7 +332,7 @@ public class EditorExtension : EditorWindow
                 sw.WriteLine("\tpublic static List<" + className + "> GetList()");
                 sw.WriteLine("\t{");
                 sw.WriteLine("\t\tList<" + className + "> list = new List<" + className + ">();");
-                sw.WriteLine("\t\tstring csvPath = Application.streamingAssetsPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
+                sw.WriteLine("\t\tstring csvPath = Application.persistentDataPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
                 sw.WriteLine("\t\tstring content = File.ReadAllText(csvPath);");
                 sw.WriteLine("\t\tstring[] datas = content.Split('\\n');");
                 sw.WriteLine("\t\tfor (int i = 3; i < datas.Length; i++)");
@@ -459,7 +486,7 @@ public class EditorExtension : EditorWindow
                 sw.WriteLine("\tpublic static Dictionary<int," + className + "> GetDic()");
                 sw.WriteLine("\t{");
                 sw.WriteLine("\t\tDictionary<int," + className + "> dic = new Dictionary<int," + className + ">();");
-                sw.WriteLine("\t\tstring csvPath = Application.streamingAssetsPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
+                sw.WriteLine("\t\tstring csvPath = Application.persistentDataPath +" + "\"" + "/CSVConfig/" + className + ".csv\";");
                 sw.WriteLine("\t\tstring content = File.ReadAllText(csvPath);");
                 sw.WriteLine("\t\tstring[] datas = content.Split('\\n');");
                 sw.WriteLine("\t\tfor (int i = 3; i < datas.Length; i++)");
@@ -627,9 +654,9 @@ public class EditorExtension : EditorWindow
     [MenuItem("Tools/清除数据/清除Json")]
     private static void ClearJson()
     {
-        if (Directory.Exists(Application.persistentDataPath + "/UserData"))
+        if (Directory.Exists(Application.persistentDataPath))
         {
-            Directory.Delete(Application.persistentDataPath + "/UserData", true);
+            Directory.Delete(Application.persistentDataPath, true);
         }
     }
     #endregion

@@ -1,23 +1,33 @@
 ManifestFileVersion: 0
-CRC: 3551414624
+CRC: 4083406016
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a5b3270987f6fdcc1e9c4a25ae90d628
+    Hash: 829d67f6c04d5c4975a57155764acb07
   TypeTreeHash:
     serializedVersion: 2
-    Hash: d932379852eff06259f9b8dee5d77fce
+    Hash: 84ce9c7be5637f95877a648fd404bc15
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
 - Class: 28
+  Script: {instanceID: 0}
+- Class: 48
   Script: {instanceID: 0}
 - Class: 114
   Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ac2a5394c7c7fe74c800cbc404f81aae, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: fc2f0cfaa6f081943a4aaea0eb3aa3e4, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 128
   Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
@@ -27,5 +37,6 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/Resources/Prefabs/UIPanels/MainMenuPanel.prefab
 - Assets/Resources/Prefabs/UIPanels/LoadingPanel.prefab
 Dependencies: []

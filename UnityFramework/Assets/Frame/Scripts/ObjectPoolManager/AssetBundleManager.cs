@@ -107,10 +107,10 @@ namespace WKC
         /// <param name="abName"></param>
         /// <param name="resName"></param>
         /// <returns></returns>
-        public T ResoucesLoadFromAB<T>(string abName, string resName) where T : Object
+        public T LoadRes<T>(string abName, string resName) where T : Object
         {
             AssetBundle ab = LoadAB(abName);
-            return ab.LoadAsset(resName) as T;
+            return ab.LoadAsset<T>(resName);
         }
 
         /// <summary>
@@ -119,10 +119,10 @@ namespace WKC
         /// <param name="abName"></param>
         /// <param name="resName"></param>
         /// <returns></returns>
-        public GameObject ResoucesLoadFromAB(string abName, string resName)
+        public GameObject LoadRes(string abName, string resName)
         {
             AssetBundle ab = LoadAB(abName);
-            return ab.LoadAsset(resName) as GameObject;
+            return ab.LoadAsset<GameObject>(resName);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace WKC
         /// <param name="resName"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public Object ResoucesLoadFromAB(string abName, string resName, System.Type type)
+        public Object LoadRes(string abName, string resName, System.Type type)
         {
             AssetBundle ab = LoadAB(abName);
             return ab.LoadAsset(resName, type);
@@ -144,7 +144,7 @@ namespace WKC
         /// <param name="abName"></param>
         /// <param name="resName"></param>
         /// <param name="callback"></param>
-        public void ResoucesLoadFromABAsync(string abName, string resName, UnityAction<Object> callback)
+        public void LoadResAsync(string abName, string resName, UnityAction<Object> callback)
         {
             TimeManager.Instance.StartCoroutine(LoadAsyncRes(abName, resName, callback));
         }
@@ -167,7 +167,7 @@ namespace WKC
         /// <param name="abName"></param>
         /// <param name="resName"></param>
         /// <param name="callback"></param>
-        public void ResoucesLoadFromABAsync<T>(string abName, string resName, UnityAction<Object> callback)
+        public void LoadResAsync<T>(string abName, string resName, UnityAction<Object> callback)
         {
             TimeManager.Instance.StartCoroutine(LoadAsyncRes<T>(abName, resName, callback));
         }
@@ -190,7 +190,7 @@ namespace WKC
         /// <param name="resName"></param>
         /// <param name="type"></param>
         /// <param name="callback"></param>
-        public void ResoucesLoadFromABAsync(string abName, string resName, System.Type type, UnityAction<Object> callback)
+        public void LoadResAsync(string abName, string resName, System.Type type, UnityAction<Object> callback)
         {
             TimeManager.Instance.StartCoroutine(LoadAsyncRes(abName, resName, type, callback));
         }
@@ -204,6 +204,18 @@ namespace WKC
             });
             yield return abr;
             callback(abr.asset);
+        }
+
+        /// <summary>
+        /// 加载一个AB包中的所有资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="abName"></param>
+        /// <returns></returns>
+        public T[] LoadAllRes<T>(string abName) where T : Object
+        {
+            AssetBundle ab = LoadAB(abName);
+            return ab.LoadAllAssets<T>();
         }
 
         /// <summary>

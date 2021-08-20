@@ -1,23 +1,16 @@
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
+using UnityEngine.U2D;
+using UnityEngine.UI;
 
 namespace WKC
 {
     public class MyTools
     {
-        /// <summary>
-        /// 根据概率获取结果
-        /// </summary>
-        /// <param name="probability">概率值 0-1 </param>
-        /// <returns></returns>
-        public static bool RandomResult(float probability)
-        {
-            return UnityEngine.Random.Range(0, 1f) < probability;
-        }
-
         /// <summary>
         /// 修改Transform的位置
         /// </summary>
@@ -82,5 +75,42 @@ namespace WKC
                 throw new Exception("GetMD5HashFromFile() fail,error:" + ex.Message);
             }
         }
+
+        /// <summary>
+        /// 修改物体的layer
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="layers"></param>
+        public static void ChangeLayers(GameObject obj, string layers)
+        {
+            MeshRenderer[] mrs = obj.GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0; i < mrs.Length; i++)
+            {
+                mrs[i].gameObject.layer = LayerMask.NameToLayer(layers);
+            }
+
+            SkinnedMeshRenderer[] smrs = obj.GetComponentsInChildren<SkinnedMeshRenderer>();
+            for (int i = 0; i < smrs.Length; i++)
+            {
+                smrs[i].gameObject.layer = LayerMask.NameToLayer(layers);
+            }
+        }
+
+        /// <summary>
+        /// 克隆对象
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static object DeepClone(object obj)
+        {
+            if (obj == null) return null;
+            BinaryFormatter bFormatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            bFormatter.Serialize(stream, obj);
+            stream.Seek(0, SeekOrigin.Begin);
+            return bFormatter.Deserialize(stream);
+        }
+
+        
     }
 }

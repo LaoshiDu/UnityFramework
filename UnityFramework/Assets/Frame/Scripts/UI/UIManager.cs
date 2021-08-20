@@ -93,7 +93,7 @@ namespace WKC
                         panelPrefab = Resources.Load<GameObject>(panelConfigDic[panelName].path);
                         break;
                     case AssetLoadType.AssetBundle:
-                        panelPrefab = AssetBundleManager.Instance.ResoucesLoadFromAB<GameObject>("uipanels", panelName.ToString());
+                        panelPrefab = AssetBundleManager.Instance.LoadRes<GameObject>("uipanels", panelName.ToString());
                         break;
                 }
 

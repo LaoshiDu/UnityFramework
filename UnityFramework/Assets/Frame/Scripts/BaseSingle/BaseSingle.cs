@@ -1,3 +1,6 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace WKC
@@ -41,6 +44,10 @@ namespace WKC
                         singleton = new GameObject("SingletonObject");
                     }
 #if UNITY_EDITOR
+                    if (EditorApplication.isPlaying)
+                    {
+                        DontDestroyOnLoad(singleton);
+                    }
 #else
                     DontDestroyOnLoad(singleton);
 #endif

@@ -72,7 +72,7 @@ namespace WKC
                             obj = Resources.Load<GameObject>(names[0] + "/" + names[1]);
                             break;
                         case AssetLoadType.AssetBundle:
-                            obj = AssetBundleManager.Instance.ResoucesLoadFromAB<GameObject>(names[0], names[1]);
+                            obj = AssetBundleManager.Instance.LoadRes<GameObject>(names[0], names[1]);
                             break;
                     }
                     go = GameObject.Instantiate(obj);
@@ -87,7 +87,7 @@ namespace WKC
                         obj = Resources.Load<GameObject>(names[0] + "/" + names[1]);
                         break;
                     case AssetLoadType.AssetBundle:
-                        obj = AssetBundleManager.Instance.ResoucesLoadFromAB<GameObject>(names[0], names[1]);
+                        obj = AssetBundleManager.Instance.LoadRes<GameObject>(names[0], names[1]);
                         break;
                 }
                 pool.Add(names[1] + suffixName, new Queue<GameObject>());

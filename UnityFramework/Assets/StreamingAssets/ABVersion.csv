@@ -1,5 +1,7 @@
 ﻿AbName,Version,MD5
-ABPackage,1,a07f99a454af62d097e46dbe1713e472
-ABPackage.manifest,1,410895fdbf178614ee1357f8cd612001
-uipanels,1,093ad9a196d1d736ad10879232f6bff7
-uipanels.manifest,1,01783e3088e64863fff51806acd62c7a
+ABPackage,4,cf3a799a18a8aa669d173f9dc02b199e
+ABPackage.manifest,4,6da8a8a6041da45de0f8d3b9f237a71f
+uipanels.manifest,4,b469532b56001434a1a22cc49fd655ce
+spriteatlases,2,2e2cd94b322af4db174180e54e12548f
+spriteatlases.manifest,2,73a8843bf751565e119c8d5212cf582c
+uipanels,1,14ef916a59ea5fe62c3ab7968c251ad9
