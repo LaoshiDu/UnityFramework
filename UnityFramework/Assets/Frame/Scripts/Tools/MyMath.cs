@@ -340,7 +340,6 @@ namespace WKC
                         break;
                     }
                 }
-                Debug.LogError(Math.Round(num / numDatas[i].Value, t) + numDatas[i].symbol);
                 return Math.Round(num / numDatas[i].Value, t) + numDatas[i].symbol;
             }
             catch (Exception ex)

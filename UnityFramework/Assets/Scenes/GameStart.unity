@@ -772,7 +772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   userdata:
     version: 0
-    gold: 100000
+    gold: 10000
     testDic: []
 --- !u!1 &1807739260
 GameObject:
