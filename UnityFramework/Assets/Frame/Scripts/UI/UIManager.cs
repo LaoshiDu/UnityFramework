@@ -1,17 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
+using UnityEngine.UI;
 
 namespace WKC
 {
     public class UIManager : BaseMgr<UIManager>
     {
         public Material gray;
+        public CanvasScaler canvasScaler;
+        public RectTransform root;
 
         private Transform canvas;
         private GameObject eventSystem;
-
+        
         #region 节点
         private Transform hideRoot;
         private Transform baseRoot;
@@ -52,7 +54,8 @@ namespace WKC
             panelDic = new Dictionary<PanelName, BasePanel>();
             popUpStack = new Stack<BasePanel>();
             canvas = GameObject.Find("Canvas")?.transform;
-
+            root = canvas.GetComponent<RectTransform>();
+            canvasScaler = canvas.GetComponent<CanvasScaler>();
             if (canvas == null)
             {
                 GameObject canvasPrefab = Resources.Load<GameObject>("Prefabs/UI/Canvas");

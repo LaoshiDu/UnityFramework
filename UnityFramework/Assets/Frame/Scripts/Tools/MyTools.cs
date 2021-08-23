@@ -111,5 +111,81 @@ namespace WKC
             stream.Seek(0, SeekOrigin.Begin);
             return bFormatter.Deserialize(stream);
         }
+
+        /// <summary>
+        /// 世界坐标转UI坐标
+        /// </summary>
+        /// <param name="targetWorldPos"></param>
+        /// <param name="mainCam"></param>
+        /// <param name="uiCam"></param>
+        /// <param name="uiCanvas"></param>
+        /// <returns></returns>
+        public static Vector3 World2UIPos(Vector3 targetWorldPos, Camera mainCam, Camera uiCam, RectTransform uiCanvas)
+        {
+            Vector3 zero = Vector3.zero;
+            Vector3 vector = mainCam.WorldToScreenPoint(targetWorldPos);
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(uiCanvas, vector, uiCam, out zero);
+            return zero;
+        }
+        /// <summary>
+        /// UI坐标转世界坐标
+        /// </summary>
+        /// <param name="uiTarget"></param>
+        /// <returns></returns>
+        public static Vector3 UI2WorldPos(RectTransform uiTarget)
+        {
+            CanvasScaler canvasScaler = UIManager.Instance.canvasScaler;
+            Vector2 referenceResolution = canvasScaler.referenceResolution;
+            Vector2 vector = uiTarget.anchoredPosition;
+            CanvasScaler.ScreenMatchMode screenMatchMode = canvasScaler.screenMatchMode;
+            if (screenMatchMode == CanvasScaler.ScreenMatchMode.Expand||screenMatchMode == CanvasScaler.ScreenMatchMode.MatchWidthOrHeight|| screenMatchMode== CanvasScaler.ScreenMatchMode.Shrink)
+            {
+                if ((int)screenMatchMode - 1 <= 1)
+                {
+                    float num = (float)Screen.width / referenceResolution.x;
+                    float num2 = (float)Screen.height / referenceResolution.y;
+                    vector.y *= num2;
+                    vector.x *= num;
+                }
+            }
+            else
+            {
+                float num3 = (canvasScaler.matchWidthOrHeight == 0f) ? ((float)Screen.width / referenceResolution.x) : ((float)Screen.height / referenceResolution.y);
+                vector *= num3;
+            }
+            Vector2 vector2 = vector + 0.5f * new Vector2((float)Screen.width, (float)Screen.height);
+            Vector3 result = default(Vector3);
+            UIManager instance = UIManager.Instance;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(instance.root, vector2, CameraManager.Instance.uiCamera, out result);
+            return result;
+        }
+
+        /// <summary>
+        /// 屏幕坐标转3D本地坐标
+        /// </summary>
+        /// <param name="screenPos"></param>
+        /// <param name="parent"></param>
+        /// <param name="mainCam"></param>
+        /// <returns></returns>
+        public static Vector3 ScreenToLocalPos(Vector3 screenPos, Transform parent, Camera mainCam)
+        {
+            Vector3 vector= new Vector3(screenPos.x, screenPos.y, -mainCam.transform.position.z);
+            Vector3 vector2 = mainCam.ScreenToWorldPoint(vector);
+            return parent.worldToLocalMatrix.MultiplyPoint(vector2);
+        }
+
+        /// <summary>
+        /// 屏幕坐标向指定Canvas画布坐标转换(Local)
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="screen"></param>
+        /// <param name="uiCam"></param>
+        /// <returns></returns>
+        public static Vector2 ScreenToCanvasPos(Canvas canvas, Vector3 screen, Camera uiCam)
+        {
+            Vector2 result;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, screen, uiCam, out result);
+            return result;
+        }
     }
 }
