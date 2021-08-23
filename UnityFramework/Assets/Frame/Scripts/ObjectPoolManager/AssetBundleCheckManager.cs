@@ -21,8 +21,6 @@ namespace WKC
 
     public class AssetBundleCheckManager : BaseMgr<AssetBundleCheckManager>
     {
-        private string _ArchiveBundlesDirectory = "";
-        private AssetBundleManifest _MainManifest = null;
         private Dictionary<string, AssetBundle> _LoadedBundles = new Dictionary<string, AssetBundle>();
 
         private bool _isLoadAB;

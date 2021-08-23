@@ -64,6 +64,22 @@ public enum AssetLoadType
     AssetBundle
 }
 
+public enum VibrateState
+{
+    /// <summary>
+    /// 轻轻的震动
+    /// </summary>
+    Softly,
+    /// <summary>
+    /// 连续短促的小震
+    /// </summary>
+    Interval,
+    /// <summary>
+    /// 强烈的震动
+    /// </summary>
+    Acute,
+}
+
 #endregion
 
 #region 结构体
