@@ -67,6 +67,20 @@ public enum AssetLoadType
 #endregion
 
 #region 结构体
+/// <summary>
+/// 数字转换格式
+/// </summary>
+public struct NumFormat
+{
+    /// <summary>
+    /// 数据临界点
+    /// </summary>
+    public double Value { get; set; }
+    /// <summary>
+    /// 标志、单位
+    /// </summary>
+    public string symbol { get; set; }
+}
 #endregion
 
 #region 类

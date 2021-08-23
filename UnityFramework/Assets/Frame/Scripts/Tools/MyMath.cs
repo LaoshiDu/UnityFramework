@@ -311,5 +311,43 @@ namespace WKC
             }
             return result;
         }
+
+
+        /// <summary>
+        /// 数字转换
+        /// </summary>
+        /// <param name="num"></param>
+        /// <param name="b">保留小数位数</param>
+        /// <returns></returns>
+        public static string NumToString(float num, int t = 2)
+        {
+            try
+            {
+                //初始化数据
+                List<NumFormat> numDatas = new List<NumFormat>() {
+                new NumFormat() {Value=1,symbol="" },
+                new NumFormat() {Value=1e3,symbol="K" },
+                new NumFormat() {Value=1e6,symbol="B" },
+                new NumFormat() {Value=1e9,symbol="T" },
+                new NumFormat() {Value=1e12,symbol="aa" },
+                new NumFormat() {Value=1e15,symbol="ab" },
+                new NumFormat() {Value=1e18,symbol="ac" }};
+                int i = 0;
+                for (i = numDatas.Count - 1; i > 0; i--)
+                {
+                    if (num >= numDatas[i].Value)
+                    {
+                        break;
+                    }
+                }
+                Debug.LogError(Math.Round(num / numDatas[i].Value, t) + numDatas[i].symbol);
+                return Math.Round(num / numDatas[i].Value, t) + numDatas[i].symbol;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("数字转换异常：" + ex.Message);
+            }
+            return "数字转换异常"+ num;
+        }
     }
 }

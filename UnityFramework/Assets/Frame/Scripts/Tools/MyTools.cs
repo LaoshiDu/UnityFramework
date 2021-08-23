@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
@@ -110,7 +111,5 @@ namespace WKC
             stream.Seek(0, SeekOrigin.Begin);
             return bFormatter.Deserialize(stream);
         }
-
-        
     }
 }
