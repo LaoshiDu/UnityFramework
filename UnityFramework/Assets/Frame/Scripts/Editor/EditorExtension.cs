@@ -10,6 +10,12 @@ using WKC;
 /// </summary>
 public class EditorExtension : EditorWindow
 {
+    [MenuItem("Tools/重启项目", false, -10)]
+    private static void RestartUnity()
+    {
+        EditorApplication.OpenProject(Application.dataPath.Replace("Assets", string.Empty));
+    }
+
     #region 打开文件夹
     [MenuItem("Tools/打开文件夹/Application.dataPath", false, 1)]
     private static void OpenDataPath()
@@ -661,9 +667,34 @@ public class EditorExtension : EditorWindow
     }
     #endregion
 
-    [MenuItem("Tools/重启项目", false, -10)]
-    private static void RestartUnity()
+    #region 更新路径
+    [MenuItem("Tools/更新音频路径",false,81)]
+    private static void UpdateAudioInfo()
     {
-        EditorApplication.OpenProject(Application.dataPath.Replace("Assets", string.Empty));
+        string soundPath = Application.dataPath + "/Resources/Sounds";
+        string soundPathCS = Application.dataPath + "/Frame/Scripts/AudioManager/SoundPath.cs";
+        FileStream fs = new FileStream(soundPathCS, FileMode.Create, FileAccess.Write);
+        StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+        sw.WriteLine("namespace WKC");
+        sw.WriteLine("{");
+        sw.WriteLine("\tpublic class SoundPath");
+        sw.WriteLine("\t{");
+        string[] files = Directory.GetFiles(soundPath);
+        foreach (string file in files)
+        {
+            string suffix = file.Substring(file.Length - 4);
+            if (suffix != "meta")
+            {
+                string soundName = file.Substring(soundPath.Length + 1);
+                string name = soundName.Split('.')[0];
+                sw.WriteLine("\t\tpublic const string "+ name+" = \""+name+"\";");
+            }
+        }
+        sw.WriteLine("\t}");
+        sw.Write("}");
+        sw.Close();
+        fs.Close();
+        AssetDatabase.Refresh();
     }
+    #endregion
 }

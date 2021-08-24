@@ -11,17 +11,17 @@ public class GuiTest : MonoBehaviour
 
         if (GUI.Button(new Rect(10 + 110 * index++, 100, 100, 100), "注册事件"))
         {
-            obj = ObjectPoolManager.Instance.GetObj(ObjectPoolConfig.GetList()[0].resPath);
+            //obj = ObjectPoolManager.Instance.GetObj(ObjectPoolConfig.GetList()[0].resPath);
         }
 
         if (GUI.Button(new Rect(10 + 110 * index++, 100, 100, 100), "去注册事件"))
         {
-            ObjectPoolManager.Instance.RecycleObject(obj);
+            //ObjectPoolManager.Instance.RecycleObject(obj);
         }
 
         if (GUI.Button(new Rect(10 + 110 * index++, 100, 100, 100), "去注册事件"))
         {
-            ObjectPoolManager.Instance.ClearObjPool();
+            //ObjectPoolManager.Instance.ClearObjPool();
         }
     }
 }
