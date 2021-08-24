@@ -7,7 +7,7 @@ namespace WKC
     public class CameraManager : BaseMgr<CameraManager>
     {
         public Camera uiCamera;
-
+        
         public void Init()
         {
             uiCamera = GameObject.Find("Cameras/UICamera").GetComponent<Camera>();
