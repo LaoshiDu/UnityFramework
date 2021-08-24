@@ -49,8 +49,8 @@ namespace WKC
         /// <summary>
         /// 获取游戏对象
         /// </summary>
-        /// <param name="obj">需要获取的游戏对象</param>
-        /// <returns>返回得到的游戏对象</returns>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public GameObject GetObj(string Name)
         {
             string[] names = Name.Split('#');

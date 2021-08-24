@@ -31,7 +31,6 @@ public class ModifyJsonDataEditor : Editor
             FileInfo _saveLocalFileInfo = new FileInfo(Application.persistentDataPath + @"/UserData/UserData.json");
             using (StreamWriter sw = _saveLocalFileInfo.CreateText())
             {
-                Debug.LogError(jsonData.userdata.gold);
                 var result = JsonMapper.ToJson(jsonData.userdata);
                 sw.Write(result);
             }
