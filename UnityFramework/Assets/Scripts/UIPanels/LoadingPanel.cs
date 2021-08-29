@@ -1,27 +1,30 @@
-using UnityEngine;
+using System;
 using UnityEngine.UI;
 using WKC;
 
 public class LoadingPanel : BasePanel
 {
-    private Image progress;
+    private Image progressImg;
+    private Text progressText;
 
     public override void Init()
     {
         base.Init();
-        progress = GetUIComponent<Image>("ProgressBg/Progress");
+        progressImg = GetUIComponent<Image>("ProgressBg/Progress");
+        progressText = GetUIComponent<Text>("Progress");
     }
 
     public override void Show()
     {
         base.Show();
         EventCenterManager.Instance.AddEventListener(EventName.LoadingProgess, UpdateProgress);
-        AtlasManager.Instance.SetSprite(progress, "TestAtlas", "Test");
+        AtlasManager.Instance.SetSprite(progressImg, "TestAtlas", "Test");
     }
 
     private void UpdateProgress(object[] args)
     {
-        progress.fillAmount = (float)args[0];
+        progressImg.fillAmount = (float)args[0];
+        progressText.text = Math.Round((float)args[0], 2) * 100 + "%";
     }
 
     public override void Hide()

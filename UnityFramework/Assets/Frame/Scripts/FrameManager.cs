@@ -2,6 +2,10 @@ namespace WKC
 {
     public class FrameManager : BaseMgr<FrameManager>
     {
+        /// <summary>
+        /// ¿ò¼ÜÆô¶¯
+        /// </summary>
+        /// <param name="call"></param>
         public void Init(EventCall call)
         {
             callback = call;

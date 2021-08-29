@@ -12,14 +12,23 @@ namespace WKC
     public class BaseMgr<T> where T : class, new()
     {
         public EventCall callback;
-        private static T instance;
+        private static volatile T instance;
+        // 用于lock块的对象
+        private static readonly object locker = new object();
+
         public static T Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new T();
+                    lock (locker)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new T();
+                        }
+                    }
                 }
                 return instance;
             }

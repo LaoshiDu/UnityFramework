@@ -11,6 +11,10 @@ namespace WKC
         private int csvCount = 0;
         private int completedCount = 0;
 
+        /// <summary>
+        /// 游戏配置表初始化
+        /// </summary>
+        /// <param name="completed"></param>
         public void Init(EventCall completed)
         {
             callback = completed;
